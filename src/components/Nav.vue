@@ -1,6 +1,6 @@
 <template>
         <!-- Navigation-->
-        <nav class="navbar navbar-expand-lg fixed-top navbar-light bg-light" id="mainNav" style="border-bottom: 1px solid #ddd">
+        <nav class="navbar navbar-expand-lg fixed-top navbar-dark bg-dark text-white" id="mainNav" style="border-bottom: 1px solid #ddd">
             <span class="navbar-brand">
                 <b>Interbank</b>
             </span>
@@ -31,11 +31,12 @@
         </nav>
 </template>
 <script>
-    import ADService from '../services/AuthService';
+    import SERVICE from '../services/AuthService';
+
     export default {
         methods:{
             logout(){
-                ADService.dispatch("doLogout", {self: this});
+                SERVICE.dispatch("doLogout", {self: this});
             }
         }
     }

@@ -1,5 +1,6 @@
 export default({
     fnError(e){
+        console.error(e);
         switch (e.response.status) {
             case 412:// Exception Laravel
                 console.error(e.response.data);

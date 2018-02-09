@@ -2,7 +2,7 @@ import Vue from 'vue';
 import Router from 'vue-router';
 import Login from '../components/Login';
 import SelectProject from '../components/SelectProject';
-import ListExams from '../components/ListExams';
+import Themes from '../components/Themes';
 import Exam from '../components/Exam';
 import VueLocalStorage from 'vue-local-storage';
 
@@ -31,13 +31,13 @@ const router = new Router({
         {
             path: '/list-exams',
             name: 'list-exams',
-            component: ListExams,
+            component: Themes,
             meta: {
                 requiresAuth: true
             }
         },
         {
-            path: '/exam',
+            path: '/exam/:theme_id',
             name: 'exam',
             component: Exam,
             meta: {
