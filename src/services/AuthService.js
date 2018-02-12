@@ -34,7 +34,7 @@ const AUTH_SERVICE = new Vuex.Store({
             doAuth(self);
         },
         loadProjects({commit}, {self}) {
-            Axios.get(ENV.API + "/proyects")
+            Axios.get(ENV.API + "/proyect/state/1")
                 .then((r) => {
                     console.log(r.data);
                     if (r.status === 200){
