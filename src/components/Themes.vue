@@ -3,7 +3,7 @@
         <component :is="'nav-exam'"/>
         <div class="card mt-5 mb-5">
             <div class="card-header bg-dark text-white">
-                <b class="h5">Tus Temarios</b>
+                <b class="h5">Mis Examenes</b>
                 <div hidden class="form-inline">
                     <label>
                         <select class="form-control">
@@ -29,8 +29,18 @@
                             <th scope="col">Action</th>
                         </tr>
                         </thead>
-                        <tbody v-if="data.length">
-                            <tr v-for="(v,k) in data">
+                        <tbody v-if="loadingTable" class="table">
+                        <tr>
+                            <td colspan="8" class="text-dark text-center">
+                                <div style="padding: 3em 2em 0 2em">
+                                    <i class="fa fa-circle-o-notch fa-spin fa-2x mb-2"></i>
+                                    <p>Obteniendo Informacion!</p>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                        <tbody v-if="!loadingTable && data.length > 1">
+                        <tr v-for="(v,k) in data">
                             <th scope="row">{{k+1}}</th>
                             <td>{{v.name}}</td>
                             <td>{{moment(v.start_date).format("DD-MM-YYYY")}}</td>
@@ -42,7 +52,7 @@
                                 <span v-if="v.exam_state_id == 4" class="text-danger"><b>{{v.exam_state}}</b></span>
                                 <span v-if="v.exam_state_id == 5" class="text-dark"><b>{{v.exam_state}}</b></span>
                             </td>
-                            <td>{{moment(700/86400).format("HH:mm:ss")}}</td>
+                            <td>{{toFormatHours(v.duration)}}</td>
                             <td>
                                 <span v-if="v.exam_state_id == 1">{{v.note}}</span>
                                 <span v-if="v.exam_state_id == 2">{{v.note}}</span>
@@ -51,23 +61,26 @@
                                 <span v-if="v.exam_state_id == 5">{{v.note}}</span>
                             </td>
                             <td>
-                                <a v-if="v.exam_state_id == 3" class="btn btn-primary" href @click.prevent="openModal(2)">
+                                <a v-if="v.exam_state_id == 3" class="btn btn-primary" href
+                                   @click.prevent="openModal(v)">
                                     <i class="fa fa-file-text-o fa-fw"></i>
                                     <span>Ver Solución</span>
                                 </a>
-                                <a v-if="v.exam_state_id == 2" class="btn btn-warning" href data-toggle="modal" data-target="#infoModal" @click.prevent="p_theme_id = v.id">
+                                <a v-if="v.exam_state_id == 2" class="btn btn-warning" href data-toggle="modal"
+                                   data-target="#infoModal"
+                                   @click.prevent="p_theme_id = v.id;p_exam_duration = v.duration">
                                     <i class="fa fa-file-text-o fa-fw"></i>
                                     <span>Iniciar Examen</span>
                                 </a>
                             </td>
                         </tr>
                         </tbody>
-                        <tbody v-else>
+                        <tbody v-else-if="!loadingTable && data.length <= 0" >
                         <tr>
                             <td colspan="8" class="text-dark text-center">
                                 <div style="padding: 3em 2em 0 2em">
-                                    <i class="fa fa-circle-o-notch fa-spin fa-2x mb-2"></i>
-                                    <p>Obteniendo Informacion!</p>
+                                    <i class="fa fa-exclamation-triangle fa-2x mb-2"></i>
+                                    <p>Usted no cuenta con información disponible!</p>
                                 </div>
                             </td>
                         </tr>
@@ -77,22 +90,27 @@
             </div>
         </div>
         <!-- Info Modal-->
-        <div class="modal fade" id="infoModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        <div class="modal fade in" id="infoModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
              aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="exampleModalLabel">
-                            <span class="text-danger">Are you ready to start the exam?</span>
+                            <span class="text-dark">¿Estás listo para iniciar el examen?</span>
                         </h5>
                         <button class="close" type="button" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">×</span>
                         </button>
                     </div>
-                    <div class="modal-body">The exam lasts 10 minutes with no option to cancel.</div>
+                    <div class="modal-body">
+                        El examen tiene un tiempo de <b>{{toHHMMSS(p_exam_duration)}}</b>, sin opciones de regresar,
+                        cancelar o actualizar la página.
+                    </div>
                     <div class="modal-footer">
-                        <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                        <router-link data-dismiss="modal" class="btn btn-primary" :to="{name:'exam',params:{theme_id:p_theme_id}}">Ready</router-link>
+                        <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancelar</button>
+                        <router-link data-dismiss="modal" class="btn btn-primary" :to="{name:'exam',params:{theme_id:p_theme_id,exam_duration:p_exam_duration}}">
+                            <span>Aceptar</span>
+                        </router-link>
                     </div>
                 </div>
             </div>
@@ -114,40 +132,69 @@
                                                 <div class="input-group-prepend">
                                                     <span class="input-group-text">Nota</span>
                                                 </div>
-                                                <span class="form-control">18</span>
+                                                <span class="form-control">{{modal.note}}</span>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="card-body">
-                                    <div class="table-responsive">
-                                        <div v-for="(v,k) in data_exam_solution">
-                                            <table class="table table-vue">
-                                                <thead>
-                                                <tr>
-                                                    <th scope="row" colspan="5"><span>{{k+1}}.-</span>&nbsp;&nbsp;{{v.name}}</th>
-                                                </tr>
-                                                </thead>
-                                                <tbody>
-                                                <tr v-for="(vv,kk) in v.options">
-                                                    <td width="25%" :class="vv.id == v.answer_correct ? 'pl-5 bg-success text-white': vv.id == v.answer_register ? 'pl-5 bg-danger text-white' : 'pl-5'" >
-                                                        <b>{{returnLetter(kk)}})&nbsp;</b>
-                                                        <div class="form-check form-check-inline">
-                                                            <!--<input :data-id="v.id" class="form-check-input" type="radio" :name="'opt'+v.id" :id="returnLetter(kk)+v.id" :value="vv.id" @click="doChecked()"/>-->
-                                                            <label class="form-check-label" :for="returnLetter(kk)+v.id">{{vv.name}}</label>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                                </tbody>
-                                            </table>
-                                            <br>
-                                        </div>
+                                    <div v-if="loadingTable" class="text-center">
+                                        <table class="table">
+                                            <tr>
+                                                <td class="text-dark text-center">
+                                                    <div style="padding: 3em 2em 0 2em">
+                                                        <i class="fa fa-circle-o-notch fa-spin fa-2x mb-2"></i>
+                                                        <p>Obteniendo Informacion!</p>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                    <div v-if="!loadingTable && data_exam_solution.length >= 1"
+                                         v-for="(v,k) in data_exam_solution">
+                                        <table class="table table-vue">
+                                            <thead>
+                                            <tr>
+                                                <th scope="row" colspan="5"><span>{{k+1}}.-</span>&nbsp;&nbsp;{{v.name}}
+                                                </th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr v-for="(vv,kk) in v.options">
+                                                <td width="25%"
+                                                    :class="vv.id == v.answer_correct ? 'pl-5 bg-success text-white': vv.id == v.answer_register ? 'pl-5 bg-danger text-white' : 'pl-5'">
+                                                    <b>{{returnLetter(kk)}})&nbsp;</b>
+                                                    <div class="form-check form-check-inline">
+                                                        <!--<input :data-id="v.id" class="form-check-input" type="radio" :name="'opt'+v.id" :id="returnLetter(kk)+v.id" :value="vv.id" @click="doChecked()"/>-->
+                                                        <label class="form-check-label"
+                                                               :for="returnLetter(kk)+v.id">{{vv.name}}</label>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                        <br>
+                                    </div>
+                                    <div v-if="!loadingTable && data_exam_solution.length <= 0" class="text-center">
+                                        <table class="table">
+                                            <tr>
+                                                <td class="text-dark text-center">
+                                                    <div style="padding: 3em 2em 0 2em">
+                                                        <i class="fa fa-exclamation-triangle fa-2x mb-2"></i>
+                                                        <p>Información no disponible!</p>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </table>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" @click="closeModal(2)"><i class="fa fa-close fa-fw"></i>Close</button>
+                            <button type="button" class="btn btn-secondary" @click="closeModal(2)">
+                                <i class="fa fa-close fa-fw"></i>
+                                <span>Cerrar</span>
+                            </button>
                         </div>
                     </div>
                 </div><!-- /.modal-content -->
@@ -167,11 +214,19 @@
 
     export default {
         data: () => ({
+            loadingTable: true,
             data: [],
             data_exam_solution: [],
-            moment:moment,
-            p_theme_id:null,
+            moment: moment,
+            p_theme_id: null,
+            p_exam_duration: 0,
             loadComponentExamSolution: false,
+            params: {
+                exam_id: 0,
+            },
+            modal: {
+                note: 0,
+            }
         }),
         created() {
             this.loadThemes();
@@ -180,17 +235,12 @@
             loadThemes() {
                 return SERVICE.dispatch("loadExams", {self: this});
             },
-            openModal(num) {
-                if (num == 1) {
-                    this.timer();
-                    this.loadComponentExam = true;
-                    $('#modal-id-exam').modal({backdrop: 'static', keyboard: false, show: true});
-                    this.loadExam();
-                } else {
-                    this.loadComponentExamSolution = true;
-                    $('#modal-id-exam-solucion').modal({keyboard: false, show: true});
-                    this.loadExamsSolution();
-                }
+            openModal(object) {
+                this.loadComponentExamSolution = true;
+                this.params.exam_id = object.id;
+                this.modal.note = object.note;
+                $('#modal-id-exam-solucion').modal({keyboard: false, show: true});
+                this.loadExamSolution();
             },
             closeModal(num) {
                 if (num == 1) {
@@ -211,11 +261,38 @@
                     return letter[key];
                 }
             },
-            loadExamsSolution() {
-                SERVICE.dispatch("loadExamsSolution", {self: this});
+            loadExamSolution() {
+                SERVICE.dispatch("loadExamSolution", {self: this});
+            },
+            toFormatHours(seg) {
+                const timeBox = {seg: seg, min: '', hrs: ''};
+                let result = '';
+                const extractQuotientResidue = (limit, valor) => {
+                    if (timeBox['seg'] >= limit) {
+                        timeBox[valor] = (timeBox['seg'] / limit).toString().split('.')[0];
+                        timeBox['seg'] = timeBox['seg'] - (timeBox[valor] * limit)
+                    }
+                };
+                extractQuotientResidue(3600, 'hrs');   // Extrayendo el cociente para las horas
+                extractQuotientResidue(60, 'min');     // Extrayendo el cociente para las minutos
+                result = (timeBox.hrs) ? result.concat(timeBox.hrs, 'hrs ') : result.concat('');
+                result = (timeBox.min) ? result.concat(timeBox.min, 'min ') : result.concat('');
+                result = (timeBox.seg) ? result.concat(timeBox.seg, 'seg ') : result.concat('');
+                return result
+            },
+            toHHMMSS(sec) {
+                let sec_num = parseInt(sec, 10), // don't forget the second param
+                    hh = Math.floor(sec_num / 3600),
+                    mm = Math.floor((sec_num - (hh * 3600)) / 60),
+                    ss = sec_num - (hh * 3600) - (mm * 60);
+                if (hh < 10) hh = "0" + hh;
+                if (mm < 10) mm = "0" + mm;
+                if (ss < 10) ss = "0" + ss;
+                return hh + ':' + mm + ':' + ss;
             }
         },
     }
+
 </script>
 
 <style scoped>

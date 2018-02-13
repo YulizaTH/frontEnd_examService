@@ -7,7 +7,7 @@
                     <div class="col-3 mb-3">
                         <div class="input-group input-group mt-1">
                             <div class="input-group-prepend">
-                                <span class="input-group-text bg-dark text-white">Time Remaining</span>
+                                <span class="input-group-text bg-dark text-white">Tiempo restante</span>
                             </div>
                             <span class="form-control">{{remaining}}</span>
                         </div>
@@ -21,23 +21,30 @@
                         </div>
                     </div>
                     <div class="col-12">
-                        <div v-if="isMinute<=0 && (isMinute==0 ? isSecond<=31 : isSecond!=undefined) && remaining != vtime "
+                        <div id="showAlertFinally"
+                             v-if="isHour<=0 && isMinute<=0 && (isMinute==0 ? isSecond<=31 : isSecond!=undefined) && remaining != vtime"
                              class="alert alert-danger" role="alert">
                             <span><b>Advertencia:&nbsp;&nbsp;</b>Su examen terminará en <b>{{remaining}}</b></span>
-                        </div>
-                    </div>
-                    <div hidden class="col-12">
-                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                            <span><b>Nota:&nbsp;&nbsp;</b>Tiempo agotado!.</span>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="card-body">
-                <table v-if="data.length > 1" class="table table-vue">
+                <table v-if="loadingTable" class="table">
+                    <tr>
+                        <td colspan="auto" class="text-dark text-center">
+                            <div style="padding: 3em 2em 0 2em">
+                                <i class="fa fa-circle-o-notch fa-spin fa-2x mb-2"></i>
+                                <p>Obteniendo Informacion!</p>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+                <table v-if="!loadingTable && data.length >= 2" class="table table-vue">
                     <thead>
                     <tr>
-                        <th scope="row" colspan="5"><span>{{data[next].id}}.-</span><span class="pl-2">{{data[next].name}}</span></th>
+                        <th scope="row" colspan="5"><span>{{data[next].id}}.-</span><span class="pl-2">{{data[next].name}}</span>
+                        </th>
                     </tr>
                     </thead>
                     <tbody>
@@ -45,7 +52,9 @@
                         <td width="110%" class="pl-5">
                             <b>{{returnLetter(k)}})&nbsp;</b>
                             <div class="form-check form-check-inline">
-                                <input title="" :data-id="data[next].id" class="form-check-input" type="radio" :name="'opt'+data[next].id" :id="returnLetter(k)+data[next].id" :value="v.id" @click="doChecked()"/>
+                                <input title="" :data-id="data[next].id" class="form-check-input" type="radio"
+                                       :name="'opt'+data[next].id" :id="returnLetter(k)+data[next].id" :value="v.id"
+                                       @click="doChecked()"/>
                                 <label class="form-check-label" :for="returnLetter(k)+data[next].id">{{v.name}}</label>
                             </div>
                         </td>
@@ -56,33 +65,54 @@
                                 <div class="col-6 text-right">
                                     <button :hidden="data[next].id == 1" class="btn btn-light" @click="change('-')">
                                         <i class="fa fa-arrow-left fa-fw"></i>
-                                        <span>Anterior</span>
                                     </button>
                                 </div>
                                 <div class="col-6 text-left">
                                     <button v-if="data.length != next+1" class="btn btn-light" @click="change('+')">
-                                        <span>Siguiente</span>
                                         <i class="fa fa-arrow-right fa-fw"></i>
                                     </button>
-                                    <button v-else class="btn btn-dark">Saved Exam</button>
+                                    <a v-else class="btn btn-dark" href data-toggle="modal" data-target="#infoModal"
+                                       @click.prevent="pauseTimer = true">
+                                        <span>Finalizar</span>
+                                    </a>
                                 </div>
                             </div>
                         </td>
                     </tr>
                     </tbody>
                 </table>
-                <table v-else class="table">
+                <table v-else-if="!loadingTable && data.length <= 1" class="table">
                     <tr>
-                        <td colspan="auto" class="text-dark text-center">
+                        <td colspan="5" class="text-dark text-center">
                             <div style="padding: 3em 2em 0 2em">
-                                <i class="fa fa-circle-o-notch fa-spin fa-2x mb-2"></i>
-                                <p>Obteniendo Informacion!</p>
+                                <i class="fa fa-exclamation-triangle fa-2x mb-2"></i>
+                                <p>Usted no cuenta con información disponible!</p>
                             </div>
                         </td>
                     </tr>
                 </table>
             </div>
         </div>
+        <!-- Info Modal-->
+        <div class="modal fade in" id="infoModal" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">
+                            <span class="text-dark">Atención</span>
+                        </h5>
+                    </div>
+                    <div class="modal-body">
+                        <p>Esta seguro de terminar el examen en <b>{{this.remaining}}</b></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" type="button" data-dismiss="modal" @click.prevent="pauseTimer = false">Cancelar</button>
+                        <button class="btn btn-primary" type="button" data-dismiss="modal" @click.prevent="saveExam()">Aceptar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </section>
 </template>
 
@@ -91,14 +121,20 @@
     import Nav from '../components/Nav';
     import $ from 'jquery';
     import moment from 'moment';
+    import VueLocalStorage from 'vue-local-storage';
     import SERVICE from '../services/ExamService';
 
     Vue.component("nav-exam", Nav);
 
     export default {
         data: () => ({
+            storage:VueLocalStorage,
+            pauseTimer: false,
+            loadingTable: true,
+            timerStatic:"",
             data: [{}],
-            theme_id: 1,
+            exam_id: 1,
+            exam_duration: 0,
             next: 0,
             back: 0,
             vtime: "00:01:00",
@@ -108,22 +144,27 @@
             tsecond: 60,
             tminute: 10,
             thour: 1,
+            isHour: 0,
             isMinute: 0,
             isSecond: 0,
             selectedValue: "1",
-            params: {
-                rptas: []
-            },
+            params:[],
             timerUpdate: null,
             tempRptas: [],
             tempTime: {},
-            tempChecked:[],
-            tempRptaChecked:[]
+            tempChecked: [],
+            tempRptaChecked: []
         }),
         created() {
-            this.data = [{}];
-            this.theme_id = this.$route.params.theme_id;
-            this.loadExam();
+            if (this.$route.params.exam_duration != undefined) {
+                this.data = [{}];
+                this.exam_id = this.$route.params.theme_id;
+                this.vtime = this.toHHMMSS(this.$route.params.exam_duration);
+                this.vvtime = this.$route.params.exam_duration;
+                this.loadExam();
+            } else {
+                this.$router.replace("/list-exams");
+            }
         },
         methods: {
             loadExam() {
@@ -141,33 +182,35 @@
             change(signo) {
                 if (signo === "+") {
                     //condicional para el temporal checked
-                    if(this.tempChecked.length > this.next) {
-                        if(this.next+1 < this.tempChecked.length){
+                    if (this.tempChecked.length > this.next) {
+                        if (this.next + 1 < this.tempChecked.length) {
                             $(document).ready(() => {
                                 let inputToArray = $('.table-vue').find('tbody').find('input[type=radio]');
-                                $.each(inputToArray, (kkkk, vvvv) => {
+                                $.each(inputToArray, (k, v) => {
                                     //aplicar checked al volver atras
-                                    if(this.tempChecked[this.next] != undefined){
-                                        if(kkkk == this.tempChecked[this.next].checked_id){
-                                            $(vvvv).prop("checked",true);
+                                    if (this.tempChecked[this.next] != undefined && this.tempChecked[this.next] != {}) {
+                                        if (k == this.tempChecked[this.next].checked_id) {
+                                            $(v).prop("checked", true);
+                                        } else {
+                                            $(v).prop("checked", false);
                                         }
-                                    }else{
+                                    } else {
                                         return false;
                                     }
                                 });
                             });
-                        }else{
+                        } else {
                             $(document).ready(() => {
                                 let inputToArray = $('.table-vue').find('tbody').find('input[type=radio]');
-                                $.each(inputToArray, (kkkk, vvvv) => {
+                                $.each(inputToArray, (k, v) => {
                                     //aplicar checked al iniciar y al dar siguiente
-                                    if(this.data.length == this.next){
-                                        if ($(vvvv).is(":checked")) {
-                                            $(vvvv).prop("checked", true);
+                                    if (this.data.length == this.next) {
+                                        if ($(v).is(":checked")) {
+                                            $(v).prop("checked", true);
                                         }
-                                    }else{
-                                        if ($(vvvv).is(":checked")) {
-                                            $(vvvv).prop("checked", false);
+                                    } else {
+                                        if ($(v).is(":checked")) {
+                                            $(v).prop("checked", false);
                                         }
                                     }
                                 });
@@ -175,6 +218,7 @@
                         }
                     }
 
+                    //algoritmo logico para avanzar
                     if (this.next + 1 < this.data.length) {
                         this.next = this.next + 1;
                     } else {
@@ -187,16 +231,21 @@
                         let inputToArray = $('.table-vue').find('tbody').find('input[type=radio]');
                         $.each(inputToArray, (kkkk, vvvv) => {
                             //aplicar checked al volver atras
-                            if(this.tempChecked[this.next] != undefined){
-                                if(kkkk == this.tempChecked[this.next].checked_id){
-                                    $(vvvv).prop("checked",true);
+                            //si el contenedor esta definido y solo tiene valores validos
+                            if (this.tempChecked[this.next] != undefined && this.tempChecked[this.next] != {}) {
+                                //encontrar la posicion del input checked
+                                if (kkkk == this.tempChecked[this.next].checked_id) {
+                                    $(vvvv).prop("checked", true);
+                                } else {
+                                    $(vvvv).prop("checked", false);
                                 }
-                            }else{
+                            } else {
                                 return false;
                             }
                         });
                     });
 
+                    //algoritmo logico para retroceder
                     if (this.next >= 1) {
                         this.next = this.next - 1;
                     } else {
@@ -211,12 +260,14 @@
             timer() {
                 this.remaining = this.vtime;
                 const getRemainTime = deadline => {
+                    let h = moment(this.remaining, "HH:mm:ss").hour();
                     let m = moment(this.remaining, "HH:mm:ss").minute();
                     let s = moment(this.remaining, "HH:mm:ss").second();
+                    this.isHour = h;
                     this.isMinute = m;
                     this.isSecond = s;
                     let now = moment(new Date()),
-                        remainTime = (((moment(deadline).add(this.vvtime, 'minute') - now) + 1000) / 1000),
+                        remainTime = (((moment(deadline).add(this.vvtime, 'second') - now) + 1000) / 1000),
                         remainSeconds = ('0' + Math.floor(remainTime % 60)).slice(-2),
                         remainMinutes = ('0' + Math.floor(remainTime / 60 % 60)).slice(-2),
                         remainHours = ('0' + Math.floor(remainTime / 3600 % 24)).slice(-2),
@@ -226,10 +277,20 @@
                 const countDown = (deadline) => {
                     this.timerUpdate = setInterval(() => {
                         let t = getRemainTime(deadline);
-                        this.remaining = t.remainHours + ':' + t.remainMinutes + ':' + t.remainSeconds;
+                        if (!this.pauseTimer) {
+                            this.remaining = t.remainHours + ':' + t.remainMinutes + ':' + t.remainSeconds;
+                        }
+                        let $alert = $('#showAlertFinally');
+                        if ($alert.hasClass("alert-danger")) {
+                            $alert.removeClass("alert-danger");
+                            $alert.addClass("alert-warning");
+                        } else if ($alert.hasClass("alert-warning")) {
+                            $alert.removeClass("alert-warning");
+                            $alert.addClass("alert-danger");
+                        }
                         if (t.remainTime <= 1) {
                             clearInterval(this.timerUpdate);
-                            this.saveRedirect();
+                            // this.saveRedirect();
                         }
                     }, 1000);
                 };
@@ -238,14 +299,19 @@
             doChecked() {
                 $(document).ready(() => {
                     let inputToArray = $('.table-vue').find('tbody').find('input[type=radio]');
-                    $.each(inputToArray, (kkkk, vvvv) => {
-                        if ($(vvvv).is(":checked")) {
-                            //aplicar checked normal
-                            if(this.tempChecked.length == this.next){
-                                this.tempChecked.push({question_id:this.data[this.next].id,checked_id:kkkk});
-                            }else{
-                                //aplicar checked para cambiar
-                                this.tempChecked[this.next] = {question_id:this.data[this.next].id,checked_id:kkkk};
+                    $.each(inputToArray, (k, v) => {
+                        if ($(v).is(":checked")) {
+                            //Si la longitud del array es igual al next
+                            if (this.tempChecked.length == this.next) {
+                                //cargar con valores validos
+                                this.tempChecked.push({user_id:this.storage.get("auth").id,exam_id: this.exam_id ,question_id:this.data[this.next].id,answer_id: $(v).val(), checked_id: k});
+                            } else {
+                                //cargar con valores que se volveran a tratar en el siguiente ciclo
+                                this.tempChecked[this.next] = {user_id:this.storage.get("auth").id,exam_id: this.exam_id ,question_id:this.data[this.next].id,answer_id: $(v).val(), checked_id: k};
+                                //recorrer lo cargado, y setear las posiciones con valores invalidos para controlar el arreglo
+                                $.each(this.tempChecked, (kk, vv) => {
+                                    if (vv == undefined) this.tempChecked[kk] = {};
+                                });
                             }
                         }
                     });
@@ -253,6 +319,22 @@
                 // console.log(this.tempChecked);
                 // this.tempRptaChecked.push(this.tempChecked);
             },
+            toHHMMSS(sec) {
+                let sec_num = parseInt(sec, 10), // don't forget the second param
+                    hh = Math.floor(sec_num / 3600),
+                    mm = Math.floor((sec_num - (hh * 3600)) / 60),
+                    ss = sec_num - (hh * 3600) - (mm * 60);
+                if (hh < 10) hh = "0" + hh;
+                if (mm < 10) mm = "0" + mm;
+                if (ss < 10) ss = "0" + ss;
+                return hh + ':' + mm + ':' + ss;
+            },
+            saveExam(){
+                this.params = [];
+                this.params = this.tempChecked;
+                console.log(this.params);
+                SERVICE.dispatch("saveExam",{self:this});
+            }
         },
     }
 </script>

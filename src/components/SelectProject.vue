@@ -8,17 +8,16 @@
                 <form>
                     <div class="form-group">
                         <label>Project</label>
-                        <select v-model="selectedProject" class="form-control mb-1">
-                            <option value="0" selected>- seleccionar -</option>
-                            <option v-for="(v,k) in data" v-bind:value="v.id">{{v.name}}</option>
+                        <select v-model="params.selectedProject" class="form-control mb-1">
+                            <option v-for="(v,k) in data" :value="v.id">{{v.name}}</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <span v-if="selectedProject == '0' ">
-                            <a href class="btn btn-primary btn-block disabled"><span>Next</span></a>
+                        <span v-if="params.selectedProject == '1' ">
+                            <a href class="btn btn-primary btn-block disabled"><span>Siguiente</span></a>
                         </span>
                         <span v-else>
-                            <router-link :class=" selectedProject != '0' ? 'btn btn-primary btn-block' : 'btn btn-primary btn-block disabled' " :to="'list-exams'"><span>Next</span></router-link>
+                            <button type="button" :class=" params.selectedProject != '1' ? 'btn btn-primary btn-block' : 'btn btn-primary btn-block disabled' " @click="updateProject()">Siguiente</button>
                         </span>
                     </div>
                 </form>
@@ -34,7 +33,9 @@
         name: "select-project",
         data: () => ({
             data: [],
-            selectedProject:"0",
+            params:{
+                selectedProject: '1'
+            }
         }),
         created() {
             this.loadProjects();
@@ -43,8 +44,8 @@
             loadProjects() {
                 SERVICE.dispatch("loadProjects", {self: this});
             },
-            change(){
-                alert(this.selectedProject);
+            updateProject(){
+                SERVICE.dispatch("updateProject", {self: this});
             }
         }
     }

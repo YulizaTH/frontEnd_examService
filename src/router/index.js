@@ -29,8 +29,8 @@ const router = new Router({
             }
         },
         {
-            path: '/list-exams',
-            name: 'list-exams',
+            path: '/exams',
+            name: 'exams',
             component: Themes,
             meta: {
                 requiresAuth: true
@@ -48,11 +48,12 @@ const router = new Router({
 });
 
 router.beforeEach((to, from, next) => {
+    console.log(VueLocalStorage.get("AuthStorage"));
     if (to.path === '/login') {
-        VueLocalStorage.set("auth", {authenticate: false});
+        VueLocalStorage.set("AuthStorage", undefined);
     }
     const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
-    if (requiresAuth && !VueLocalStorage.get("auth").authenticate) {
+    if (requiresAuth && VueLocalStorage.get("AuthStorage") === undefined) {
         next('/login');
     } else {
         next();
