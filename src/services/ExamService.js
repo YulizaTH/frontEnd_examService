@@ -17,14 +17,14 @@ const EXAM_SERVICE = new Vuex.Store({
         loadExams({commit}, {self}) {
             if (this.state.intent != null) window.clearInterval(this.state.intent);
             Axios.get(ENV.API + "/exam/listExamUser/" + VueLocalStorage.get("AuthStorage").id)
-                .then((r) => {
+                .then( r => {
                     if (r.status === 200) {
                         self.loadingTable = false;
                         self.data = r.data;
                         $.extend(self.data[2], {id: 1});
                     }
                 })
-                .catch((e) => {
+                .catch( e => {
                     self.method = "loadExams";
                     Util.fnError(e, self, this);
                 })
@@ -32,13 +32,13 @@ const EXAM_SERVICE = new Vuex.Store({
         loadExam({commit}, {self}) {
             if (this.state.intent != null) window.clearInterval(this.state.intent);
             Axios.get(ENV.API + "/exam/takeExam/" + self.exam_id)
-                .then((r) => {
+                .then( r => {
                     if (r.status === 200) {
                         self.loadingTable = false;
                         self.data = r.data;
                     }
                 })
-                .catch((e) => {
+                .catch( e => {
                     self.method = "loadExam";
                     Util.fnError(e, self, this);
                 })
@@ -46,22 +46,22 @@ const EXAM_SERVICE = new Vuex.Store({
         loadExamSolution({commit}, {self}) {
             if (this.state.intent != null) window.clearInterval(this.state.intent);
             Axios.get(ENV.API + "/exam/seeExamSolution/" + self.params.exam_id)
-                .then((r) => {
+                .then( r => {
                     if (r.status === 200) self.data_exam_solution = r.data
                 })
-                .catch((e) => {
+                .catch( e => {
                     self.method = "loadExamSolution";
                     Util.fnError(e, self, this);
                 })
         },
         saveExam({commit}, {self}) {
             Axios.post(ENV.API + "/exam/recordExamResponse", self.params)
-                .then((r) => {
+                .then( r => {
                     if (r.status === 200) {
                         self.$router.replace("/exams");
                     }
                 })
-                .catch((e) => Util.fnError(e))
+                .catch( e => Util.fnError(e))
         },
         checkedRequest({commit}, {self}) {
             Axios.put(ENV.API + "/exams/listExamsUsers/" + VueLocalStorage.get("AuthStorage").id, {
@@ -72,10 +72,10 @@ const EXAM_SERVICE = new Vuex.Store({
                     answer_id: a_id
                 }
             })
-                .then((r) => {
+                .then( r => {
                     if (r.status === 200) self.data_exam = r.data
                 })
-                .catch((e) => Util.fnError(e))
+                .catch( e => Util.fnError(e))
         }
     }
 });

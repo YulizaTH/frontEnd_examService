@@ -14,7 +14,7 @@
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle mr-lg-2" id="" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <i class="fa fa-fw fa-user"></i>
-                            <b>{{storage.get("AuthStorage").username}}</b>
+                            <b>{{storage.get("AuthStorage").name_complet}}</b>
                         </a>
                         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="alertsDropdown">
                             <a class="dropdown-item" href="#">

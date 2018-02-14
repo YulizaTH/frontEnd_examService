@@ -3,7 +3,8 @@
         <component :is="'nav-exam'"/>
         <div class="card mt-5 mb-5">
             <div class="card-header bg-dark text-white">
-                <b class="h5">Mis Examenes</b>
+                <span><i @click="loadThemes()" class="fa fa-refresh text-warning"></i></span>
+                <b class="h5">&nbsp Mis Examenes</b>                
             </div>
             <div class="card-body">
                 <div class="table-responsive">
@@ -33,7 +34,7 @@
                         <tbody v-if="!loadingTable && data.length > 1">
                         <tr v-for="(v,k) in data">
                             <th scope="row">{{k+1}}</th>
-                            <td>{{v.name}}</td>
+                            <td>{{v.id}}</td>
                             <td>{{moment(v.start_date).format("DD-MM-YYYY")}}</td>
                             <td>{{moment(v.expiration_date).format("DD-MM-YYYY")}}</td>
                             <td>
@@ -59,9 +60,9 @@
                                 </a>
                                 <a v-if="v.exam_state_id == 2" class="btn btn-warning" href data-toggle="modal"
                                    data-target="#infoModal"
-                                   @click.prevent="p_theme_id = v.id;p_exam_duration = v.duration">
+                                   @click.prevent="p_theme_id = v.exam_id; p_exam_duration = v.duration">
                                     <i class="fa fa-file-text-o fa-fw"></i>
-                                    <span>Iniciar Examen</span>
+                                    <span>Iniciar Examena</span>
                                 </a>
                             </td>
                         </tr>
@@ -80,6 +81,7 @@
                 </div>
             </div>
         </div>
+
         <!-- Info Modal-->
         <div class="modal fade in" id="infoModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
              aria-hidden="true">
@@ -106,6 +108,7 @@
                 </div>
             </div>
         </div>
+
         <!-- Exam Solution Modal-->
         <div id="modal-id-exam-solucion" class="modal fade in" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-lg" role="document">
@@ -224,6 +227,7 @@
                 </div><!-- /.modal-content -->
             </div><!-- /.modal-dialog -->
         </div>
+
     </section>
 </template>
 
@@ -257,6 +261,7 @@
         },
         methods: {
             loadThemes() {
+                this.loadingTable = true
                 return SERVICE.dispatch("loadExams", {self: this});
             },
             openModal(object) {
