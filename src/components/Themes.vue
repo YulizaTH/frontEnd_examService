@@ -266,7 +266,7 @@
             },
             openModal(object) {
                 this.loadComponentExamSolution = true;
-                this.params.exam_id = object.id;
+                this.params.exam_id = object.exam_id;
                 this.modal.note = object.note;
                 $('#modal-id-exam-solucion').modal({keyboard: false, show: true});
                 this.loadExamSolution();
