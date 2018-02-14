@@ -52,9 +52,7 @@
                         <td width="110%" class="pl-5">
                             <b>{{returnLetter(k)}})&nbsp;</b>
                             <div class="form-check form-check-inline">
-                                <input title="" :data-id="data[next].id" class="form-check-input" type="radio"
-                                       :name="'opt'+data[next].id" :id="returnLetter(k)+data[next].id" :value="v.id"
-                                       @click="doChecked()"/>
+                                <input title="" :data-id="data[next].id" class="form-check-input" type="radio" :name="'opt'+data[next].id" :id="returnLetter(k)+data[next].id" :value="v.id" @click="doChecked()"/>
                                 <label class="form-check-label" :for="returnLetter(k)+data[next].id">{{v.name}}</label>
                             </div>
                         </td>
@@ -290,7 +288,7 @@
                         }
                         if (t.remainTime <= 1) {
                             clearInterval(this.timerUpdate);
-                            // this.saveRedirect();
+                            this.saveExam()
                         }
                     }, 1000);
                 };
@@ -304,10 +302,10 @@
                             //Si la longitud del array es igual al next
                             if (this.tempChecked.length == this.next) {
                                 //cargar con valores validos
-                                this.tempChecked.push({user_id:this.storage.get("auth").id,exam_id: this.exam_id ,question_id:this.data[this.next].id,answer_id: $(v).val(), checked_id: k});
+                                this.tempChecked.push({user_id:this.storage.get("AuthStorage").id,exam_id: this.exam_id ,question_id:this.data[this.next].id,answer_id: $(v).val(), checked_id: k});
                             } else {
                                 //cargar con valores que se volveran a tratar en el siguiente ciclo
-                                this.tempChecked[this.next] = {user_id:this.storage.get("auth").id,exam_id: this.exam_id ,question_id:this.data[this.next].id,answer_id: $(v).val(), checked_id: k};
+                                this.tempChecked[this.next] = {user_id:this.storage.get("AuthStorage").id,exam_id: this.exam_id ,question_id:this.data[this.next].id,answer_id: $(v).val(), checked_id: k};
                                 //recorrer lo cargado, y setear las posiciones con valores invalidos para controlar el arreglo
                                 $.each(this.tempChecked, (kk, vv) => {
                                     if (vv == undefined) this.tempChecked[kk] = {};
@@ -316,8 +314,6 @@
                         }
                     });
                 });
-                // console.log(this.tempChecked);
-                // this.tempRptaChecked.push(this.tempChecked);
             },
             toHHMMSS(sec) {
                 let sec_num = parseInt(sec, 10), // don't forget the second param

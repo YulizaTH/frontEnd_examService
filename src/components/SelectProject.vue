@@ -34,7 +34,8 @@
         data: () => ({
             data: [],
             params:{
-                selectedProject: '1'
+                selectedProject:'1',
+                obj:{},
             }
         }),
         created() {
@@ -45,6 +46,7 @@
                 SERVICE.dispatch("loadProjects", {self: this});
             },
             updateProject(){
+                this.params.obj = this.data[this.params.selectedProject-1];
                 SERVICE.dispatch("updateProject", {self: this});
             }
         }

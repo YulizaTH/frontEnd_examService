@@ -8,12 +8,16 @@ import VueLocalStorage from 'vue-local-storage';
 
 Vue.use(Router);
 
+const user_id_auth = 0;
 const router = new Router({
     mode: 'history',
     routes: [
         {
             path: '*',
-            redirect: '/login'
+            redirect: '/login',
+            meta: {
+                requiresAuth: true
+            }
         },
         {
             path: '/login',
@@ -53,7 +57,7 @@ router.beforeEach((to, from, next) => {
         VueLocalStorage.set("AuthStorage", undefined);
     }
     const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
-    if (requiresAuth && VueLocalStorage.get("AuthStorage") === undefined) {
+    if (requiresAuth && VueLocalStorage.get("AuthStorage") === undefined || VueLocalStorage.get("AuthStorage") === null) {
         next('/login');
     } else {
         next();

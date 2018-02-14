@@ -44,7 +44,6 @@ const AUTH_SERVICE = new Vuex.Store({
         loadProjects({commit}, {self}) {
             Axios.get(ENV.API + "/proyect/state/1")
                 .then((r) => {
-                    // console.log(r.data);
                     if (r.status === 200) {
                         self.params.selectedProject = r.data[0].id;
                         self.data = r.data;
@@ -60,10 +59,13 @@ const AUTH_SERVICE = new Vuex.Store({
                     if (r.status === 200) {
                         //validar hacia donde navegar o listar proyectos o listar examenes
                         console.log("User exist");
-                        VueLocalStorage.set("AuthStorage",r.data[0]);
-                        self.self.$router.replace("/exams");
+                        VueLocalStorage.set("AuthStorage", r.data[0]);
+                        if(r.data[0].proyect_id.id === 1){
+                            self.self.$router.replace("/project");
+                        } else {
+                            self.self.$router.replace("/exams");
+                        }
                     }
-
                     if (r.status === 201) {
                         console.log("User create");
                         VueLocalStorage.set("AuthStorage",r.data);
@@ -76,6 +78,10 @@ const AUTH_SERVICE = new Vuex.Store({
             Axios.patch(ENV.API + "/user/updateProyect/"+VueLocalStorage.get("AuthStorage").id,{proyect_id:self.params.selectedProject})
                 .then((r) => {
                     if (r.status === 204) {
+                        let objAuth = VueLocalStorage.get("AuthStorage");
+                        objAuth.proyect_id.id = self.params.obj.id;
+                        objAuth.proyect_id.name = self.params.obj.name;
+                        VueLocalStorage.set("AuthStorage", objAuth);
                         self.$router.replace("/exams");
                     }
                 })
