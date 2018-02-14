@@ -34,7 +34,7 @@
                         <tbody v-if="!loadingTable && data.length > 1">
                         <tr v-for="(v,k) in data">
                             <th scope="row">{{k+1}}</th>
-                            <td>{{v.id}}</td>
+                            <td>{{v.name}}</td>
                             <td>{{moment(v.start_date).format("DD-MM-YYYY")}}</td>
                             <td>{{moment(v.expiration_date).format("DD-MM-YYYY")}}</td>
                             <td>
