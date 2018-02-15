@@ -4,20 +4,16 @@ import Login from '../components/Login';
 import SelectProject from '../components/SelectProject';
 import Themes from '../components/Themes';
 import Exam from '../components/Exam';
-import VueLocalStorage from 'vue-local-storage';
+import Storage from 'vue-local-storage';
 
 Vue.use(Router);
 
-const user_id_auth = 0;
 const router = new Router({
     mode: 'history',
     routes: [
         {
             path: '*',
             redirect: '/login',
-            meta: {
-                requiresAuth: true
-            }
         },
         {
             path: '/login',
@@ -52,12 +48,11 @@ const router = new Router({
 });
 
 router.beforeEach((to, from, next) => {
-    console.log(VueLocalStorage.get("AuthStorage"));
     if (to.path === '/login') {
-        VueLocalStorage.set("AuthStorage", undefined);
+        Storage.set("AuthStorage", undefined);
     }
     const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
-    if (requiresAuth && VueLocalStorage.get("AuthStorage") === undefined || VueLocalStorage.get("AuthStorage") === null) {
+    if (requiresAuth && Storage.get("AuthStorage") === undefined || Storage.get("AuthStorage") === null) {
         next('/login');
     } else {
         next();
