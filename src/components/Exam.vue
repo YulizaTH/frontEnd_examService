@@ -43,17 +43,27 @@
                 <table v-if="!loadingTable && data.length >= 2" class="table table-vue">
                     <thead>
                     <tr>
-                        <th scope="row" colspan="5"><span>{{data[next].id}}.-</span><span class="pl-2">{{data[next].name}}</span>
-                        </th>
+                        <th scope="row" colspan="5"><span>{{data[next].id}}.-</span><span class="pl-2">{{data[next].name}}</span></th>
                     </tr>
                     </thead>
                     <tbody>
+                    <tr v-if="data[next].name_image !== '' ">
+                        <td width="100%">
+                            <div class="img-thumbnail text-center">
+                                <img :src="getImgUrl(data[next].name_image)" alt="" width="150px">
+                            </div>
+                        </td>
+                    </tr>
                     <tr v-for="(v,k) in data[next].options">
-                        <td width="110%" class="pl-5">
+                        <td width="100%" class="pl-5">
                             <b>{{returnLetter(k)}})&nbsp;</b>
                             <div class="form-check form-check-inline">
-                                <input title="" :data-id="data[next].id" class="form-check-input" type="radio" :name="'opt'+data[next].id" :id="returnLetter(k)+data[next].id" :value="v.id" @click="doChecked()"/>
-                                <label class="form-check-label" :for="returnLetter(k)+data[next].id">{{v.name}}</label>
+                                <label class="form-check-label" :for="returnLetter(k)+data[next].id">
+                                    <input title="" :data-id="data[next].id" class="form-check-input" type="radio"
+                                           :name="'opt'+data[next].id" :id="returnLetter(k)+data[next].id" :value="v.id"
+                                           @click="doChecked()"/>
+                                    <span>{{v.name}}</span>
+                                </label>
                             </div>
                         </td>
                     </tr>
@@ -69,7 +79,7 @@
                                     <button v-if="data.length != next+1" class="btn btn-light" @click="change('+')">
                                         <i class="fa fa-arrow-right fa-fw"></i>
                                     </button>
-                                    <a v-else class="btn btn-dark" href data-toggle="modal" data-target="#infoModal"
+                                    <a v-else class="btn btn-dark" href data-toggle="modal" data-target="#infoModal_2"
                                        @click.prevent="pauseTimer = true">
                                         <span>Finalizar</span>
                                     </a>
@@ -92,20 +102,54 @@
             </div>
         </div>
         <!-- Info Modal-->
-        <div class="modal fade in" id="infoModal" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal fade in" id="infoModal_2" data-backdrop="static" data-keyboard="false" tabindex="-1"
+             role="dialog" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">
+                        <h5 class="modal-title">
                             <span class="text-dark">Atención</span>
                         </h5>
                     </div>
                     <div class="modal-body">
-                        <p>Esta seguro de terminar el examen en <b>{{this.remaining}}</b></p>
+                        <template v-if="!showLoading && message == '' "><p>Esta seguro de terminar <b>{{remaining}}</b></p></template>
+                        <template v-if="!showLoading && message != '' ">{{message}}</template>
                     </div>
                     <div class="modal-footer">
-                        <button class="btn btn-secondary" type="button" data-dismiss="modal" @click.prevent="pauseTimer = false">Cancelar</button>
-                        <button class="btn btn-primary" type="button" data-dismiss="modal" @click.prevent="saveExam()">Aceptar</button>
+                        <button v-if="!showLoading && message === '' " class="btn btn-secondary" type="button" data-dismiss="modal" @click.prevent="pauseTimer=false;showLoading=false">
+                            <i class="fa fa-close fa-fw"></i><span>Cancelar</span>
+                        </button>
+                        <button v-if="!showLoading && message !== '' " class="btn btn-secondary" type="button" @click="closeModal()">
+                            <i class="fa fa-close fa-fw"></i><span>Close</span>
+                        </button>
+                        <template v-if="!showLoading">
+                            <button :hidden="!showLoading && message !== '' " :disabled="!showLoading && message !== '' "class="btn btn-primary" type="button" @click.prevent="save()">
+                                <template v-if="showLoading" ><i class="fa fa-circle-o-notch fa-spin fa-fw"></i><span>Enviando</span></template>
+                                <template v-else><i class="fa fa-check fa-fw"></i><span>Enviar</span></template>
+                            </button>
+                        </template>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade in" id="infoModal_3" data-backdrop="static" data-keyboard="false" tabindex="-1"
+             role="dialog" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <span class="text-dark">Atención</span>
+                        </h5>
+                    </div>
+                    <div class="modal-body">
+                        <p>El tiempo del examen ah caducado!</p>
+                    </div>
+                    <div class="modal-footer">
+                        <!--<router-link class="btn btn-secondary"   :to="'/exams'"><i class="fa fa-close fa-fw"></i>Cerrar</router-link>-->
+                        <button class="btn btn-secondary" type="button" @click="closeModal()"><i
+                                class="fa fa-close fa-fw"></i>Cerrar
+                        </button>
+                        <!--<button class="btn btn-primary" type="button" data-dismiss="modal" @click.prevent="saveExam()">Aceptar</button>-->
                     </div>
                 </div>
             </div>
@@ -125,10 +169,11 @@
 
     export default {
         data: () => ({
-            storage:VueLocalStorage,
+            storage: VueLocalStorage,
             pauseTimer: false,
             loadingTable: true,
-            timerStatic:"",
+            showLoading:false,
+            timerStatic: "",
             data: [{}],
             exam_id: 1,
             exam_duration: 0,
@@ -137,6 +182,7 @@
             vtime: "00:01:00",
             vvtime: 1,
             remaining: this.vtime,
+            message:"",
             mitiempo: 20,
             tsecond: 60,
             tminute: 10,
@@ -145,7 +191,7 @@
             isMinute: 0,
             isSecond: 0,
             selectedValue: "1",
-            params:[],
+            params: [],
             timerUpdate: null,
             tempRptas: [],
             tempTime: {},
@@ -154,19 +200,24 @@
         }),
         created() {
             if (this.$route.params.exam_duration != undefined) {
+                function disableF5(e) { if ((e.which || e.keyCode) == 116) e.preventDefault(); };
+                $(document).on("keydown", disableF5);
+                //Click not refresh page
+                window.onbeforeunload = () =>{
+                    return false;
+                };
                 this.data = [{}];
                 this.exam_id = this.$route.params.theme_id;
                 this.vtime = this.toHHMMSS(this.$route.params.exam_duration);
                 this.vvtime = this.$route.params.exam_duration;
                 this.loadExam();
             } else {
-                this.$router.replace("/list-exams");
+                this.$router.replace("/exams");
             }
         },
         methods: {
             loadExam() {
                 SERVICE.dispatch("loadExam", {self: this});
-                this.timer();
             },
             returnLetter(key, toUpper = false) {
                 let letter = ["a", "b", "c", "d", "e", "f", "g", "h"];
@@ -287,7 +338,9 @@
                         }
                         if (t.remainTime <= 1) {
                             clearInterval(this.timerUpdate);
-                            this.saveExam()
+                            this.showLoading = true;
+                            this.saveExam();
+                            this.openModal();
                         }
                     }, 1000);
                 };
@@ -301,10 +354,22 @@
                             //Si la longitud del array es igual al next
                             if (this.tempChecked.length == this.next) {
                                 //cargar con valores validos
-                                this.tempChecked.push({user_id:this.storage.get("AuthStorage").id,exam_id: this.exam_id ,question_id:this.data[this.next].id,answer_id: $(v).val(), checked_id: k});
+                                this.tempChecked.push({
+                                    user_id: this.storage.get("AuthStorage").id,
+                                    exam_id: this.exam_id,
+                                    question_id: this.data[this.next].id,
+                                    answer_id: $(v).val(),
+                                    checked_id: k
+                                });
                             } else {
                                 //cargar con valores que se volveran a tratar en el siguiente ciclo
-                                this.tempChecked[this.next] = {user_id:this.storage.get("AuthStorage").id,exam_id: this.exam_id ,question_id:this.data[this.next].id,answer_id: $(v).val(), checked_id: k};
+                                this.tempChecked[this.next] = {
+                                    user_id: this.storage.get("AuthStorage").id,
+                                    exam_id: this.exam_id,
+                                    question_id: this.data[this.next].id,
+                                    answer_id: $(v).val(),
+                                    checked_id: k
+                                };
                                 //recorrer lo cargado, y setear las posiciones con valores invalidos para controlar el arreglo
                                 $.each(this.tempChecked, (kk, vv) => {
                                     if (vv == undefined) this.tempChecked[kk] = {};
@@ -324,14 +389,30 @@
                 if (ss < 10) ss = "0" + ss;
                 return hh + ':' + mm + ':' + ss;
             },
-            saveExam(){
+            saveExam() {
                 this.params = [];
                 this.params = this.tempChecked;
-                console.log(this.params);
-                SERVICE.dispatch("saveExam",{self:this});
+                SERVICE.dispatch("saveExam", {self: this});
+            },
+            save(){
+                clearInterval(this.timerUpdate);
+                this.showLoading = true;
+                this.saveExam();
+            },
+            openModal() {
+                $('#infoModal_2').modal({backdrop: 'static', keyboard: false, show: true});
+            },
+            closeModal() {
+                $('#infoModal_2').modal('hide');
+                $('#infoModal_3').modal('hide');
+                this.$router.replace("/exams");
+            },
+            getImgUrl(pet) {
+                return require('@/assets/img/'+pet);
             }
-        },
+        }
     }
+
 </script>
 
 <style scoped>

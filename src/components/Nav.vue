@@ -17,11 +17,7 @@
                             <b>{{storage.get("AuthStorage").name_complet}}</b>
                         </a>
                         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="alertsDropdown">
-                            <a class="dropdown-item" href="#">
-                                <small>Settings</small>
-                            </a>
-                            <div class="dropdown-divider"></div>
-                            <a href class="dropdown-item text-danger" @click="logout()">
+                            <a href class="dropdown-item text-muted" @click.prevent="logout()">
                                 <i class="fa fa-fw fa-sign-out"></i>Logout
                             </a>
                         </div>
