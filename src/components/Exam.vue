@@ -43,11 +43,17 @@
                 <table v-if="!loadingTable && data.length >= 2" class="table table-vue">
                     <thead>
                     <tr>
-                        <th scope="row" colspan="5"><span>{{data[next].id}}.-</span><span class="pl-2">{{data[next].name}}</span>
-                        </th>
+                        <th scope="row" colspan="5"><span>{{data[next].id}}.-</span><span class="pl-2">{{data[next].name}}</span></th>
                     </tr>
                     </thead>
                     <tbody>
+                    <tr v-if="data[next].name_image !== '' ">
+                        <td width="100%">
+                            <div class="img-thumbnail text-center">
+                                <img :src="getImgUrl(data[next].name_image)" alt="" width="150px">
+                            </div>
+                        </td>
+                    </tr>
                     <tr v-for="(v,k) in data[next].options">
                         <td width="100%" class="pl-5">
                             <b>{{returnLetter(k)}})&nbsp;</b>
@@ -73,7 +79,7 @@
                                     <button v-if="data.length != next+1" class="btn btn-light" @click="change('+')">
                                         <i class="fa fa-arrow-right fa-fw"></i>
                                     </button>
-                                    <a v-else class="btn btn-dark" href data-toggle="modal" data-target="#infoModal"
+                                    <a v-else class="btn btn-dark" href data-toggle="modal" data-target="#infoModal_2"
                                        @click.prevent="pauseTimer = true">
                                         <span>Finalizar</span>
                                     </a>
@@ -96,7 +102,7 @@
             </div>
         </div>
         <!-- Info Modal-->
-        <div class="modal fade in" id="infoModal" data-backdrop="static" data-keyboard="false" tabindex="-1"
+        <div class="modal fade in" id="infoModal_2" data-backdrop="static" data-keyboard="false" tabindex="-1"
              role="dialog" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
@@ -126,7 +132,7 @@
                 </div>
             </div>
         </div>
-        <div class="modal fade in" id="infoModal_2" data-backdrop="static" data-keyboard="false" tabindex="-1"
+        <div class="modal fade in" id="infoModal_3" data-backdrop="static" data-keyboard="false" tabindex="-1"
              role="dialog" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
@@ -394,15 +400,19 @@
                 this.saveExam();
             },
             openModal() {
-                $('#infoModal').modal({backdrop: 'static', keyboard: false, show: true});
+                $('#infoModal_2').modal({backdrop: 'static', keyboard: false, show: true});
             },
             closeModal() {
-                $('#infoModal').modal('hide');
                 $('#infoModal_2').modal('hide');
+                $('#infoModal_3').modal('hide');
                 this.$router.replace("/exams");
             },
+            getImgUrl(pet) {
+                return require('@/assets/img/'+pet);
+            }
         }
     }
+
 </script>
 
 <style scoped>
