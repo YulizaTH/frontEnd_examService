@@ -11,10 +11,10 @@ Vue.use(Router);
 const router = new Router({
     mode: 'history',
     routes: [
-        // {
-        //     path: '*',
-        //     redirect: '/login',
-        // },
+        {
+            path: '*',
+            redirect: '/login',
+        },
         {
             path: '/login',
             name: 'login',
