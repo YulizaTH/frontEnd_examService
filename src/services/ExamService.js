@@ -2,7 +2,7 @@ import Vue from 'vue';
 import * as Vuex from "vuex";
 import VueLocalStorage from 'vue-local-storage';
 import Axios from 'axios';
-import ENV from "./ENV";
+import ENV from "./Env";
 import Util from "./Util";
 import $ from 'jquery';
 
@@ -21,7 +21,6 @@ const EXAM_SERVICE = new Vuex.Store({
                     if (r.status === 200) {
                         self.loadingTable = false;
                         self.data = r.data;
-                        // $.extend(self.data[2], {id: 1});
                     }
                 })
                 .catch(e => {

@@ -1,4 +1,4 @@
 const ENV = {
-    API:"http://192.167.99.203:1255"
+    API: process.env.restapi
 };
 export default ENV;
