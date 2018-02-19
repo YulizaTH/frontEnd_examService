@@ -59,8 +59,8 @@
             validate: null,
             data: [],
             params: {
-                username: "jcornejo",
-                password: "72482060"
+                username: "",
+                password: ""
             },
             errors: {
                 username: "",
