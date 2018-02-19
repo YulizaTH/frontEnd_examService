@@ -4,7 +4,7 @@
         <div class="card mt-5 mb-5">
             <div class="card-header bg-dark text-white">
                 <span><i @click="loadThemes()" class="fa fa-refresh text-warning"></i></span>
-                <b class="h5">&nbsp Mis Examenes</b>                
+                <b class="h5">Mis Examenes</b>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
@@ -62,7 +62,7 @@
                                    data-target="#infoModal"
                                    @click.prevent="p_theme_id = v.exam_id; p_exam_duration = v.duration">
                                     <i class="fa fa-file-text-o fa-fw"></i>
-                                    <span>Iniciar Examena</span>
+                                    <span>Iniciar Examen</span>
                                 </a>
                             </td>
                         </tr>
