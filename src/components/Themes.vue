@@ -4,7 +4,7 @@
         <div class="card mt-5 mb-5">
             <div class="card-header bg-dark text-white">
                 <span><i @click="loadThemes()" class="fa fa-refresh text-warning"></i></span>
-                <b class="h5">&nbsp Mis Examenes</b>                
+                <b class="h5">Mis Examenes</b>
             </div>
             <div class="card-body">
                 <div class="table-responsive">

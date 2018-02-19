@@ -43,7 +43,14 @@
                 <table v-if="!loadingTable && data.length >= 2" class="table table-vue">
                     <thead>
                     <tr>
-                        <th scope="row" colspan="5"><span>{{data[next].id}}.-</span><span class="pl-2">{{data[next].name}}</span></th>
+                        <th scope="row" colspan="5">
+                            <div class="row">
+                                <div class="col-1 mt-auto mb-auto"><span>{{data[next].id}}.-</span></div>
+                                <div class="col-11 pl-0">
+                                    <span class="pl-2" v-html="data[next].name"></span>
+                                </div>
+                            </div>
+                        </th>
                     </tr>
                     </thead>
                     <tbody>
