@@ -62,7 +62,7 @@
                                    data-target="#infoModal"
                                    @click.prevent="p_theme_id = v.exam_id; p_exam_duration = v.duration">
                                     <i class="fa fa-file-text-o fa-fw"></i>
-                                    <span>Iniciar Examena</span>
+                                    <span>Iniciar Examen</span>
                                 </a>
                             </td>
                         </tr>
