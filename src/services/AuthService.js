@@ -9,8 +9,6 @@ import Axios from 'axios'
 import Env from "./Env"
 import Util from "./Util"
 
-console.log(Env)
-
 Vue.use(Vuex, VueLocalStorage)
 
 const AUTH_SERVICE = new Vuex.Store({
@@ -58,7 +56,6 @@ const AUTH_SERVICE = new Vuex.Store({
 				.then( r => {
 					if (r.status === 200) {
 						//validar hacia donde navegar o listar proyectos o listar examenes
-						console.log("User exist")
 						VueLocalStorage.set("AuthStorage", r.data[0])
 						if(r.data[0].proyect_id.id === 1) self.self.$router.replace("/project")
 						else self.self.$router.replace("/exams")
