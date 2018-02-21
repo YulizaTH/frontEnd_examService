@@ -2,7 +2,7 @@ import Vue from 'vue'
 import * as Vuex from "vuex"
 import VueLocalStorage from 'vue-local-storage'
 import Axios from 'axios'
-import ENV from "./Env"
+import Env from "./Env"
 import Util from "./Util"
 import $ from 'jquery'
 
@@ -16,7 +16,7 @@ const EXAM_SERVICE = new Vuex.Store({
 	actions: {
 		loadExams({commit}, {self}) {
 			if (this.state.intent != null) window.clearInterval(this.state.intent)
-			Axios.get(ENV.API + "/exam/listExamUser/" + VueLocalStorage.get("AuthStorage").id)
+			Axios.get(Env.endpoint_exam + "/exam/listExamUser/" + VueLocalStorage.get("AuthStorage").id)
 				.then(r => {
 					if (r.status === 200) {
 						self.loadingTable = false
@@ -30,7 +30,7 @@ const EXAM_SERVICE = new Vuex.Store({
 		},
 		loadExam({commit}, {self}) {
 			if (this.state.intent != null) window.clearInterval(this.state.intent)
-			Axios.get(ENV.API + "/exam/takeExam/" + self.exam_id)
+			Axios.get(Env.endpoint_exam + "/exam/takeExam/" + self.exam_id)
 				.then(r => {
 					if (r.status === 200) {
 						self.loadingTable = false
@@ -45,7 +45,7 @@ const EXAM_SERVICE = new Vuex.Store({
 		},
 		loadExamSolution({commit}, {self}) {
 			if (this.state.intent != null) window.clearInterval(this.state.intent)
-			Axios.get(ENV.API + "/exam/seeExamSolution/" + self.params.exam_id)
+			Axios.get(Env.endpoint_exam + "/exam/seeExamSolution/" + self.params.exam_id)
 				.then(r => {
 					if (r.status === 200) self.data_exam_solution = r.data
 				})
@@ -55,7 +55,7 @@ const EXAM_SERVICE = new Vuex.Store({
 				})
 		},
 		saveExam({commit}, {self}) {
-			Axios.post(ENV.API + "/exam/recordExamResponse", self.params)
+			Axios.post(Env.endpoint_exam + "/exam/recordExamResponse", self.params)
 				.then(r => {
 					if (r.status === 200) {
 						console.log(r)
@@ -70,7 +70,7 @@ const EXAM_SERVICE = new Vuex.Store({
 				})
 		},
 		saveExamUnit({commit}, {self}) {
-			Axios.post(ENV.API + "/exam/recordExamResponse", self)
+			Axios.post(Env.endpoint_exam + "/exam/recordExamResponse", self)
 				.then(r => {
 					if (r.status === 200) {
 						console.log(r)
@@ -81,7 +81,7 @@ const EXAM_SERVICE = new Vuex.Store({
 				})
 		},
 		checkedRequest({commit}, {self}) {
-			Axios.put(ENV.API + "/exams/listExamsUsers/" + VueLocalStorage.get("AuthStorage").id, {
+			Axios.put(Env.endpoint_exam + "/exams/listExamsUsers/" + VueLocalStorage.get("AuthStorage").id, {
 				params: {
 					user_id: u_id,
 					exam_id: e_id,
