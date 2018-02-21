@@ -26,8 +26,8 @@ const AUTH_SERVICE = new Vuex.Store({
 						
 						if (r.data.status === false) {
 							self.errors = "Credenciales Invalidas...!!"
-						} else {
-							VueLocalStorage.set("AuthStorage", r.data.data)
+						} else {							
+							VueLocalStorage.set("AuthStorage", r.data.data)							
 							this.dispatch("validateIfExist", { self: { self: self, auth_user: r.data.data } })
 						}					
 					}
@@ -62,8 +62,7 @@ const AUTH_SERVICE = new Vuex.Store({
 					}
 					
 					if (r.status === 201) {
-						console.log("User create")
-						VueLocalStorage.set("AuthStorage",r.data)
+						VueLocalStorage.set("AuthStorage",r.data[0])
 						self.self.$router.replace("/project")
 					}
 				})
@@ -71,7 +70,7 @@ const AUTH_SERVICE = new Vuex.Store({
 		},
 
 		updateProject({commit}, {self}){
-			Axios.patch(Env.endpoint_exam + "/user/updateProyect/"+VueLocalStorage.get("AuthStorage").id,{proyect_id:self.params.selectedProject})
+			Axios.patch(Env.endpoint_exam + "/user/updateProyect/" + VueLocalStorage.get("AuthStorage").id, {proyect_id:self.params.selectedProject})
 				.then( r => {
 					if (r.status === 204) {
 						let objAuth = VueLocalStorage.get("AuthStorage")
@@ -81,18 +80,14 @@ const AUTH_SERVICE = new Vuex.Store({
 						self.$router.replace("/exams")
 					}
 				})
-				.catch(e => {
-					Util.fnError(e)
-				})
+				.catch(e => Util.fnError(e))
 		}
 	}
 })
+
 function doAuth(self) {
-	if (VueLocalStorage.get("AuthStorage") != undefined) {
-		self.$router.replace('/project')
-	} else {
-		self.$router.replace('/login')
-	}
+	if (VueLocalStorage.get("AuthStorage") != undefined) self.$router.replace('/project')
+	else self.$router.replace('/login')
 }
 
 export default AUTH_SERVICE
