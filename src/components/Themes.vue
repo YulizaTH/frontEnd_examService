@@ -1,16 +1,16 @@
 <template>
     <section>
         <component :is="'nav-exam'"/>
-        <div class="card mt-5 mb-5">
+        <div class="card mt-4 mb-4">
             <div class="card-header bg-dark text-white">
-                <span><i @click="loadThemes()" class="fa fa-refresh text-warning"></i></span>
-                <b class="h5">Mis Examenes</b>
+                <span><i @click="loadThemes()" class="fa fa-refresh text-warning" title="Recargar lista de examanes"></i></span>
+                <b class="h5">&nbsp Mis Examenes</b>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
                     <table class="table">
                         <thead>
-                        <tr>
+                        <tr align="center"  >
                             <th scope="col">#</th>
                             <th scope="col">Nombre</th>
                             <th scope="col">Fecha Inicio</th>
@@ -18,64 +18,59 @@
                             <th scope="col">Estado</th>
                             <th scope="col">Duración</th>
                             <th scope="col">Nota</th>
-                            <th scope="col">Action</th>
+                            <th scope="col">Accion</th>
                         </tr>
                         </thead>
                         <tbody v-if="loadingTable" class="table">
-                        <tr>
-                            <td colspan="8" class="text-dark text-center">
-                                <div style="padding: 3em 2em 0 2em">
-                                    <i class="fa fa-circle-o-notch fa-spin fa-2x mb-2"></i>
-                                    <p>Obteniendo Informacion!</p>
-                                </div>
-                            </td>
-                        </tr>
+                            <tr>
+                                <td colspan="8" class="text-dark text-center">
+                                    <div style="padding: 3em 2em 0 2em">
+                                        <i class="fa fa-circle-o-notch fa-spin fa-2x mb-2"></i>
+                                        <p>Obteniendo Informacion!</p>
+                                    </div>
+                                </td>
+                            </tr>
                         </tbody>
                         <tbody v-if="!loadingTable && data.length > 1">
-                        <tr v-for="(v,k) in data">
-                            <th scope="row">{{k+1}}</th>
-                            <td>{{v.name}}</td>
-                            <td>{{moment(v.start_date).format("DD-MM-YYYY")}}</td>
-                            <td>{{moment(v.expiration_date).format("DD-MM-YYYY")}}</td>
-                            <td>
-                                <span v-if="v.exam_state_id == 1" class="text-primary"><b>{{v.exam_state}}</b></span>
-                                <span v-if="v.exam_state_id == 2" class="text-warning"><b>{{v.exam_state}}</b></span>
-                                <span v-if="v.exam_state_id == 3" class="text-success"><b>{{v.exam_state}}</b></span>
-                                <span v-if="v.exam_state_id == 4" class="text-danger"><b>{{v.exam_state}}</b></span>
-                                <span v-if="v.exam_state_id == 5" class="text-dark"><b>{{v.exam_state}}</b></span>
-                            </td>
-                            <td>{{toFormatHours(v.duration)}}</td>
-                            <td>
-                                <span v-if="v.exam_state_id == 1">{{v.note}}</span>
-                                <span v-if="v.exam_state_id == 2">{{v.note}}</span>
-                                <span v-if="v.exam_state_id == 3">{{v.note}}</span>
-                                <span v-if="v.exam_state_id == 4">{{v.note}}</span>
-                                <span v-if="v.exam_state_id == 5">{{v.note}}</span>
-                            </td>
-                            <td>
-                                <a v-if="v.exam_state_id == 3" class="btn btn-primary" href
-                                   @click.prevent="openModal(v)">
-                                    <i class="fa fa-file-text-o fa-fw"></i>
-                                    <span>Ver Solución</span>
-                                </a>
-                                <a v-if="v.exam_state_id == 2" class="btn btn-warning" href data-toggle="modal"
-                                   data-target="#infoModal"
-                                   @click.prevent="p_theme_id = v.exam_id; p_exam_duration = v.duration">
-                                    <i class="fa fa-file-text-o fa-fw"></i>
-                                    <span>Iniciar Examen</span>
-                                </a>
-                            </td>
-                        </tr>
+                            <tr v-for="(v,k) in data">
+                                <th align="center" scope="row">{{k+1}}</th>
+                                <td>{{v.name}}</td>
+                                <td align="center">{{moment(v.start_date).format("MMMM D, hh:mm a")}}</td>
+                                <td align="center">{{moment(v.expiration_date).format("MMMM D, hh:mm a")}}</td>
+                                <td align="center">
+                                    <span v-if="v.exam_state_id === 1" class="text-primary"><b>{{v.exam_state}}</b></span>
+                                    <span v-if="v.exam_state_id === 2" class="text-warning"><b>{{v.exam_state}}</b></span>
+                                    <span v-if="v.exam_state_id === 3" class="text-success"><b>{{v.exam_state}}</b></span>
+                                    <span v-if="v.exam_state_id === 4" class="text-danger"><b>{{v.exam_state}}</b></span>
+                                    <span v-if="v.exam_state_id === 5" class="text-dark"><b>{{v.exam_state}}</b></span>
+                                </td>
+                                <td align="center">{{toFormatHours(v.duration)}}</td>
+                                <td align="center">{{v.note}}</td>
+                                <td align="center">
+
+                                    <template v-if="v.exam_state_id === 3">
+                                        <a class="btn btn-primary" href @click.prevent="openModal(v)">
+                                            <i class="fa fa-file-text-o fa-fw"></i> <span>Mirar Solución</span>
+                                        </a>
+                                    </template>
+                                    
+                                    <template v-if="v.exam_state_id === 2">
+                                        <a class="btn btn-warning" href data-toggle="modal" data-target="#infoModal" @click.prevent="p_theme_id = v.exam_id; p_exam_duration = v.duration">
+                                            <i class="fa fa-file-text-o fa-fw"></i> <span>Iniciar Examen</span>
+                                        </a>
+                                    </template>
+                                </td>
+                            </tr>
                         </tbody>
                         <tbody v-else-if="!loadingTable && data.length <= 0" >
-                        <tr>
-                            <td colspan="8" class="text-dark text-center">
-                                <div style="padding: 3em 2em 0 2em">
-                                    <i class="fa fa-exclamation-triangle fa-2x mb-2"></i>
-                                    <p>Usted no cuenta con información disponible!</p>
-                                </div>
-                            </td>
-                        </tr>
+                            <tr>
+                                <td colspan="8" class="text-dark text-center">
+                                    <div style="padding: 3em 2em 0 2em">
+                                        <i class="fa fa-exclamation-triangle fa-2x mb-2"></i>
+                                        <p>Usted no cuenta con información disponible!</p>
+                                    </div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -238,6 +233,8 @@
     import SERVICE from '../services/ExamService';
     import $ from 'jquery';
 
+    moment.locale("es")
+    
     Vue.component("nav-exam", Nav);
 
     export default {
