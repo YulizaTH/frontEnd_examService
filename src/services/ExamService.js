@@ -4,7 +4,6 @@ import VueLocalStorage from 'vue-local-storage'
 import Axios from 'axios'
 import Env from "./Env"
 import Util from "./Util"
-import $ from 'jquery'
 
 Vue.use(Vuex, VueLocalStorage)
 
@@ -58,7 +57,6 @@ const EXAM_SERVICE = new Vuex.Store({
 			Axios.post(Env.endpoint_exam + "/exam/recordExamResponse", self.params)
 				.then(r => {
 					if (r.status === 200) {
-						console.log(r)
 						self.showLoading = false
 						self.message = r.data
 					}
@@ -73,12 +71,10 @@ const EXAM_SERVICE = new Vuex.Store({
 			Axios.post(Env.endpoint_exam + "/exam/recordExamResponse", self)
 				.then(r => {
 					if (r.status === 200) {
-						console.log(r)
+						//console.log(r)
 					}
 				})
-				.catch(e => {
-					Util.fnError(e)
-				})
+				.catch(e => Util.fnError(e))
 		},
 		checkedRequest({commit}, {self}) {
 			Axios.put(Env.endpoint_exam + "/exams/listExamsUsers/" + VueLocalStorage.get("AuthStorage").id, {
