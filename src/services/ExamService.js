@@ -67,29 +67,19 @@ const EXAM_SERVICE = new Vuex.Store({
 					Util.fnError(e)
 				})
 		},
-		saveExamUnit({commit}, {self}) {
-			Axios.post(Env.endpoint_exam + "/exam/recordExamResponse", self)
-				.then(r => {
-					if (r.status === 200) {
-						//console.log(r)
-					}
-				})
-				.catch(e => Util.fnError(e))
-		},
-		checkedRequest({commit}, {self}) {
-			Axios.put(Env.endpoint_exam + "/exams/listExamsUsers/" + VueLocalStorage.get("AuthStorage").id, {
-				params: {
-					user_id: u_id,
-					exam_id: e_id,
-					question_id: q_id,
-					answer_id: a_id
-				}
-			})
-				.then(r => {
-					if (r.status === 200) self.data_exam = r.data
-				})
-				.catch(e => Util.fnError(e))
-		}
+        updateStatusExam({commit}, {self}) {
+            Axios.patch(Env.endpoint_exam + "/exam/updateExamState", self.params)
+                .then(r => {
+                    if (r.status === 204) {
+                        self.$router.push({name: 'exam', params: {theme_id: self.p_theme_id, exam_duration: self.p_exam_duration}});
+                    }
+                })
+                .catch(e => {
+                    self.showLoading = false
+                    self.message = e.response.data
+                    Util.fnError(e)
+                })
+        },
 	}
 })
 export default EXAM_SERVICE

@@ -45,7 +45,8 @@
                     <tr>
                         <th scope="row" colspan="5">
                             <div class="row">
-                                <div class="col-1 mt-auto mb-auto"><span>{{data[next].id}}.-</span></div>
+                                <div class="col-1 mt-auto mb-auto">
+                                    <span>{{parseInt(Object.keys(data)[next])+1}}.-</span></div>
                                 <div class="col-11 pl-0">
                                     <span class="pl-2" v-html="data[next].name"></span>
                                 </div>
@@ -119,19 +120,25 @@
                         </h5>
                     </div>
                     <div class="modal-body">
-                        <template v-if="!showLoading && message == '' "><p>Esta seguro de terminar <b>{{remaining}}</b></p></template>
+                        <template v-if="!showLoading && message == '' "><p>Esta seguro de terminar <b>{{remaining}}</b>
+                        </p></template>
                         <template v-if="!showLoading && message != '' ">{{message}}</template>
                     </div>
                     <div class="modal-footer">
-                        <button v-if="!showLoading && message === '' " class="btn btn-secondary" type="button" data-dismiss="modal" @click.prevent="pauseTimer=false;showLoading=false">
+                        <button v-if="!showLoading && message === '' " class="btn btn-secondary" type="button"
+                                data-dismiss="modal" @click.prevent="pauseTimer=false;showLoading=false">
                             <i class="fa fa-close fa-fw"></i><span>Cancelar</span>
                         </button>
-                        <button v-if="!showLoading && message !== '' " class="btn btn-secondary" type="button" @click="closeModal()">
+                        <button v-if="!showLoading && message !== '' " class="btn btn-secondary" type="button"
+                                @click="closeModal()">
                             <i class="fa fa-close fa-fw"></i><span>Close</span>
                         </button>
                         <template v-if="!showLoading">
-                            <button :hidden="!showLoading && message !== '' " :disabled="!showLoading && message !== '' "class="btn btn-primary" type="button" @click.prevent="save()">
-                                <template v-if="showLoading" ><i class="fa fa-circle-o-notch fa-spin fa-fw"></i><span>Enviando</span></template>
+                            <button :hidden="!showLoading && message !== '' "
+                                    :disabled="!showLoading && message !== '' " class="btn btn-primary" type="button"
+                                    @click.prevent="save()">
+                                <template v-if="showLoading"><i class="fa fa-circle-o-notch fa-spin fa-fw"></i><span>Enviando</span>
+                                </template>
                                 <template v-else><i class="fa fa-check fa-fw"></i><span>Enviar</span></template>
                             </button>
                         </template>
@@ -179,7 +186,7 @@
             storage: VueLocalStorage,
             pauseTimer: false,
             loadingTable: true,
-            showLoading:false,
+            showLoading: false,
             timerStatic: "",
             data: [{}],
             exam_id: 1,
@@ -189,7 +196,7 @@
             vtime: "00:01:00",
             vvtime: 1,
             remaining: this.vtime,
-            message:"",
+            message: "",
             mitiempo: 20,
             tsecond: 60,
             tminute: 10,
@@ -198,7 +205,6 @@
             isMinute: 0,
             isSecond: 0,
             selectedValue: "1",
-            params: [],
             timerUpdate: null,
             tempRptas: [],
             tempTime: {},
@@ -207,10 +213,12 @@
         }),
         created() {
             if (this.$route.params.exam_duration != undefined) {
-                function disableF5(e) { if ((e.which || e.keyCode) == 116) e.preventDefault(); };
+                function disableF5(e) {
+                    if ((e.which || e.keyCode) == 116) e.preventDefault();
+                };
                 $(document).on("keydown", disableF5);
                 //Click not refresh page
-                window.onbeforeunload = () =>{
+                window.onbeforeunload = () => {
                     return false;
                 };
                 this.data = [{}];
@@ -401,7 +409,7 @@
                 this.params = this.tempChecked;
                 SERVICE.dispatch("saveExam", {self: this});
             },
-            save(){
+            save() {
                 clearInterval(this.timerUpdate);
                 this.showLoading = true;
                 this.saveExam();
@@ -415,8 +423,8 @@
                 this.$router.replace("/exams");
             },
             getImgUrl(pet) {
-                return require('@/assets/img/'+pet);
-            }
+                return require('@/assets/img/' + pet);
+            },
         }
     }
 
