@@ -209,7 +209,7 @@
             tempRptas: [],
             tempTime: {},
             tempChecked: [],
-            tempRptaChecked: []
+            tempRptaChecked: [],
         }),
         created() {
             if (this.$route.params.exam_duration != undefined) {

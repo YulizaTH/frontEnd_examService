@@ -31,11 +31,16 @@ const EXAM_SERVICE = new Vuex.Store({
 			if (this.state.intent != null) window.clearInterval(this.state.intent)
 			Axios.get(Env.endpoint_exam + "/exam/takeExam/" + self.exam_id)
 				.then(r => {
-					if (r.status === 200) {
-						self.loadingTable = false
-						self.data = r.data
-						self.timer()
-					}
+                    if (r.status === 200) {
+                        self.msg = undefined;
+                        if(r.data.message === undefined) {
+                            self.loadingTable = false
+                            self.data = r.data
+                            self.timer()
+                        } else {
+                            self.msg = r.data.message
+                        }
+                    }
 				})
 				.catch(e => {
 					self.method = "loadExam"
@@ -44,9 +49,20 @@ const EXAM_SERVICE = new Vuex.Store({
 		},
 		loadExamSolution({commit}, {self}) {
 			if (this.state.intent != null) window.clearInterval(this.state.intent)
-			Axios.get(Env.endpoint_exam + "/exam/seeExamSolution/" + self.params.exam_id)
+            let parameters = {
+                user_id: VueLocalStorage.get("AuthStorage").id,
+                exam_id: self.params.exam_id
+            }
+			Axios.post(Env.endpoint_exam + "/exam/seeExamSolution/", parameters)
 				.then(r => {
-					if (r.status === 200) self.data_exam_solution = r.data
+					if (r.status === 200) {
+						self.msg = undefined;
+						if(r.data.message === undefined) {
+							self.data_exam_solution = r.data
+						} else {
+							self.msg = r.data.message
+						}
+                    }
 				})
 				.catch(e => {
 					self.method = "loadExamSolution"
@@ -70,8 +86,13 @@ const EXAM_SERVICE = new Vuex.Store({
         updateStatusExam({commit}, {self}) {
             Axios.patch(Env.endpoint_exam + "/exam/updateExamState", self.params)
                 .then(r => {
+                	//Si es que no tiene permiso
+                	if(r.status === 200){
+                		self.msg_validate = r.data.message;
+					}
+					//si es que tiene permiso
                     if (r.status === 204) {
-                        self.$router.push({name: 'exam', params: {theme_id: self.p_theme_id, exam_duration: self.p_exam_duration}});
+                		self.openedModal();
                     }
                 })
                 .catch(e => {

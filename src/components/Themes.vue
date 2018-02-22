@@ -86,20 +86,25 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="exampleModalLabel">
-                            <span class="text-dark">¿Estás listo para iniciar el examen?</span>
+                            <span v-if="msg_validate === undefined" class="text-dark">¿Estás listo para iniciar el examen?</span>
+                            <span v-if="msg_validate !== undefined" class="text-dark">Atención</span>
                         </h5>
-                        <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">×</span>
-                        </button>
                     </div>
                     <div class="modal-body">
-                        El examen tiene un tiempo de <b>{{toHHMMSS(p_exam_duration)}}</b>, sin opciones de regresar,
-                        cancelar o actualizar la página; porfavor prevee el tiempo necesario ya que solo contarás con 01
-                        intento para rendir el examen.
+                        <template v-if="msg_validate !== undefined">
+                            <span>{{msg_validate}}</span>
+                        </template>
+                        <template v-if="msg_validate === undefined">
+                            <span>
+                                El examen tiene un tiempo de <b>{{toHHMMSS(p_exam_duration)}}</b>, sin opciones de regresar,
+                                cancelar o actualizar la página; porfavor prevee el tiempo necesario ya que solo contarás con 01
+                                intento para rendir el examen.
+                            </span>
+                        </template>
                     </div>
                     <div class="modal-footer">
-                        <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancelar</button>
-                        <button data-dismiss="modal" class="btn btn-primary" @click.prevent="updateStatusExam()">
+                        <button class="btn btn-secondary" type="button" data-dismiss="modal" @click.prevent="msg_validate = undefined">Cancelar</button>
+                        <button class="btn btn-primary" @click.prevent="updateStatusExam()">
                             Aceptar
                         </button>
                         <!--<router-link data-dismiss="modal" class="btn btn-primary" :to="{name:'exam',params:{theme_id:p_theme_id,exam_duration:p_exam_duration}}">-->
@@ -163,7 +168,12 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="card-body">
+                                <div v-if="msg != undefined " class="card-body">
+                                    <div class="col-12 text-center">
+                                        <span>{{msg}} aqui</span>
+                                    </div>
+                                </div>
+                                <div v-if="msg == undefined" class="card-body">
                                     <div v-if="loadingTable" class="text-center">
                                         <table class="table">
                                             <tr>
@@ -271,6 +281,8 @@
             modal: {
                 note: 0,
             },
+            msg:undefined,
+            msg_validate:undefined
         }),
         created() {
             this.loadThemes();
@@ -336,10 +348,15 @@
                 return hh + ':' + mm + ':' + ss;
             },
             updateStatusExam() {
+                this.msg_validate = undefined;
                 this.params.exam_id = this.p_theme_id;
                 this.params.user_id = this.storage.get("AuthStorage").id;
                 this.params.exam_state_id = 3;
                 SERVICE.dispatch("updateStatusExam", {self: this});
+            },
+            openedModal(){
+                $('#infoModal').modal('hide');
+                this.$router.push({name: 'exam', params: {theme_id: this.p_theme_id, exam_duration: this.p_exam_duration}});
             }
         },
     }
