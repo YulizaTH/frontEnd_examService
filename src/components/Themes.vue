@@ -191,9 +191,17 @@
                                         <table class="table table-vue">
                                             <thead>
                                             <tr>
-                                                <th scope="row" colspan="5"><span>{{k+1}}.-</span>&nbsp;&nbsp;{{v.name}}
-                                                    <i v-if="v.answer_register == '0' " title="Pregunta sin Rpta!"
-                                                       class="fa fa-exclamation-triangle text-warning"></i></th>
+                                                <th scope="row" colspan="5">
+                                                    <div class="row">
+                                                        <div class="col-1 mt-auto mb-auto">
+                                                            <span>{{k+1}}.-</span>
+                                                        </div>
+                                                        <div class="col-11 pl-0">
+                                                            <span class="pl-2" v-html="v.name"></span>
+                                                            <i v-if="v.answer_register == '0' " title="Pregunta sin Rpta!" class="fa fa-exclamation-triangle text-warning"></i>
+                                                        </div>
+                                                    </div>
+                                                </th>
                                             </tr>
                                             </thead>
                                             <tbody>

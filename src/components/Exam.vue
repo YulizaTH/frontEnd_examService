@@ -46,7 +46,8 @@
                         <th scope="row" colspan="5">
                             <div class="row">
                                 <div class="col-1 mt-auto mb-auto">
-                                    <span>{{parseInt(Object.keys(data)[next])+1}}.-</span></div>
+                                    <span>{{parseInt(Object.keys(data)[next])+1}}.-</span>
+                                </div>
                                 <div class="col-11 pl-0">
                                     <span class="pl-2" v-html="data[next].name"></span>
                                 </div>
