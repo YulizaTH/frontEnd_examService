@@ -58,7 +58,7 @@
                     <tr v-if="data[next].name_image !== '' ">
                         <td width="100%">
                             <div class="img-thumbnail text-center">
-                                <img :src="getImgUrl(data[next].name_image)" alt="" width="150px">
+                                <img :src="getImgUrl(data[next].name_image)" alt="">
                             </div>
                         </td>
                     </tr>
@@ -410,7 +410,7 @@
                 SERVICE.dispatch("saveExam", {self: this});
             },
             save() {
-                clearInterval(this.timerUpdate);
+                window.clearInterval(this.timerUpdate);
                 this.showLoading = true;
                 this.saveExam();
             },
