@@ -20,12 +20,11 @@ const AUTH_SERVICE = new Vuex.Store({
 			if (self.params.username === '') return self.errors = "El campo username no puede estar vacio!"
 			if (self.params.password === '') return self.errors = "El campo password no puede estar vacio!"
 
-			Axios.post(Env.endpoint_auth + "/api/authenticate/examenes", self.params)
+			Axios.post(Env.endpoint_auth + "/api/exam/authenticate", self.params)
 				.then( r => {
 					if (r.status === 200) {
-						
 						if (r.data.status === false) {
-							self.errors = "Credenciales Invalidas...!!"
+							self.errors = r.data.message
 						} else {							
 							VueLocalStorage.set("AuthStorage", r.data.data)							
 							this.dispatch("validateIfExist", { self: { self: self, auth_user: r.data.data } })
