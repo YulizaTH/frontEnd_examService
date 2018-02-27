@@ -22,16 +22,13 @@ const AUTH_SERVICE = new Vuex.Store({
 
 			Axios.post(Env.endpoint_auth + "/api/exam/authenticate", self.params)
 				.then( r => {
-					if (r.status === 200) {
-						if (r.data.status === false) {
-							self.errors = r.data.message
-						} else {							
-							VueLocalStorage.set("AuthStorage", r.data.data)							
-							this.dispatch("validateIfExist", { self: { self: self, auth_user: r.data.data } })
-						}					
-					}
+					VueLocalStorage.set("AuthStorage", r.data.data)							
+					this.dispatch("validateIfExist", { self: { self: self, auth_user: r.data.data } })
 				})
-				.catch(e => Util.fnError(e))
+				.catch(e => {
+					self.errors = e.response.data
+					Util.fnError(e)
+				})
 		},
 
 		doLogout({commit}, {self}) {
